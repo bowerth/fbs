@@ -1,0 +1,690 @@
+<div style="overflow:auto;"><div class="geshifilter"><pre class="r geshifilter-R" style="font-family:monospace;"><a href="http://inside-r.org/r-doc/base/rm"><span style="color: #003399; font-weight: bold;">rm</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a>=<a href="http://inside-r.org/r-doc/base/ls"><span style="color: #003399; font-weight: bold;">ls</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<a href="http://inside-r.org/r-doc/base/suppressMessages"><span style="color: #003399; font-weight: bold;">suppressMessages</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#123;</span>
+  <span style="color: #666666; font-style: italic;">#library(bit64)</span>
+  <span style="color: #666666; font-style: italic;">#library(curl)</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span>faosws<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span>faoswsUtil<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/packages/cran/lme4"><span style="">lme4</span></a><span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/packages/cran/data.table"><span style="">data.table</span></a><span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span>magrittr<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span>reshape2<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/packages/cran/igraph"><span style="">igraph</span></a><span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/packages/cran/plyr"><span style="">plyr</span></a><span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span>dplyr<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/library"><span style="color: #003399; font-weight: bold;">library</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/packages/cran/ggplot2"><span style="">ggplot2</span></a><span style="color: #009900;">&#41;</span>
+  <span style="color: #666666; font-style: italic;">#library(RJDBC)</span>
+<span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+updateModel = <span style="color: #000000; font-weight: bold;">TRUE</span>
+&nbsp;
+<a href="http://inside-r.org/r-doc/base/setwd"><span style="color: #003399; font-weight: bold;">setwd</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;C:/Users/Golini/Dropbox/FAO/ICAS VII/&quot;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;">## Set up for the test environment and parameters</span>
+&nbsp;
+<span style="color: #000000; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span>CheckDebug<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+   <span style="color: #000000; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/Sys.info"><span style="color: #003399; font-weight: bold;">Sys.info</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #0000ff;">&quot;user&quot;</span><span style="color: #009900;">&#93;</span> <span style="">==</span> <span style="color: #0000ff;">&quot;Golini&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+    <span style="color: #666666; font-style: italic;"># Nata's work computer</span>
+    SetClientFiles<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/dir"><span style="color: #003399; font-weight: bold;">dir</span></a> = <span style="color: #0000ff;">&quot;~/R certificate files/Production/&quot;</span><span style="color: #009900;">&#41;</span>
+    token = <span style="color: #0000ff;">&quot;e16a500b-2077-471b-8edf-6d810a85814d&quot;</span> <span style="color: #666666; font-style: italic;"># Nata's token </span>
+    files = <a href="http://inside-r.org/r-doc/base/dir"><span style="color: #003399; font-weight: bold;">dir</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;~/Github/faoswsLoss/R&quot;</span><span style="color: #339933;">,</span>
+                full.names = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">else</span> <span style="color: #009900;">&#123;</span>
+    <a href="http://inside-r.org/r-doc/base/stop"><span style="color: #003399; font-weight: bold;">stop</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;User not yet implemented!&quot;</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#125;</span>
+&nbsp;
+  GetTestEnvironment<span style="color: #009900;">&#40;</span>
+    <span style="color: #666666; font-style: italic;">## baseUrl = &quot;https://hqlqasws1.hq.un.fao.org:8181/sws&quot;,</span>
+    baseUrl = <span style="color: #0000ff;">&quot;https://hqlprswsas1.hq.un.fao.org:8181/sws&quot;</span><span style="color: #339933;">,</span>
+    token = token
+  <span style="color: #009900;">&#41;</span>  
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+<span style="color: #666666; font-style: italic;">## Year should be a paramameter selected.</span>
+selectedYear = <a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">1991</span><span style="">:</span><span style="color: #cc66cc;">2015</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+areaVar = <span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span>
+areaVarFS = <span style="color: #0000ff;">&quot;geographicAreaFS&quot;</span>
+yearVar = <span style="color: #0000ff;">&quot;timePointYears&quot;</span>
+itemVar = <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span>
+itemVarFS = <span style="color: #0000ff;">&quot;measuredItemFS&quot;</span>
+elementVar = <span style="color: #0000ff;">&quot;measuredElement&quot;</span>
+elementVarFS = <span style="color: #0000ff;">&quot;measuredElementFS&quot;</span>
+valuePrefix = <span style="color: #0000ff;">&quot;Value_&quot;</span>
+flagObsPrefix = <span style="color: #0000ff;">&quot;flagObservationStatus_&quot;</span>
+flagMethodPrefix = <span style="color: #0000ff;">&quot;flagMethod_&quot;</span>
+&nbsp;
+&nbsp;
+addHeadingsFCL = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span> 
+  <a href="http://inside-r.org/r-doc/base/ifelse"><span style="color: #003399; font-weight: bold;">ifelse</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/nchar"><span style="color: #003399; font-weight: bold;">nchar</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span> <span style="">==</span> <span style="color: #cc66cc;">2</span><span style="color: #339933;">,</span> 
+         paste0<span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;00&quot;</span><span style="color: #339933;">,</span>measuredItemFCL<span style="color: #339933;">,</span> sep = <span style="color: #0000ff;">&quot;&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+         <a href="http://inside-r.org/r-doc/base/ifelse"><span style="color: #003399; font-weight: bold;">ifelse</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/nchar"><span style="color: #003399; font-weight: bold;">nchar</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span> <span style="">==</span> <span style="color: #cc66cc;">3</span><span style="color: #339933;">,</span>
+                paste0<span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;0&quot;</span><span style="color: #339933;">,</span>measuredItemFCL<span style="color: #339933;">,</span> sep = <span style="color: #0000ff;">&quot;&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+                measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+getLossFoodGroup = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  <span style="color: #666666; font-style: italic;"># 125 primary commodities</span>
+<span style="color: #666666; font-style: italic;">#   lossFoodGroup = data.table(ReadDatatable(table = &quot;loss_food_group&quot;)) %&gt;%</span>
+<span style="color: #666666; font-style: italic;">#                     filter(food_general_group == &quot;primary&quot;)</span>
+&nbsp;
+&nbsp;
+  lossFoodGroup = <a href="http://inside-r.org/packages/cran/data.table"><span style="">data.table</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/read.csv"><span style="color: #003399; font-weight: bold;">read.csv</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/file"><span style="color: #003399; font-weight: bold;">file</span></a> =<span style="color: #0000ff;">&quot;foodPerishableGroup.csv&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+    select<span style="color: #009900;">&#40;</span>FCL..Item..code.<span style="color: #339933;">,</span>FCL..Title<span style="color: #339933;">,</span>Group.Name<span style="color: #339933;">,</span>FBS..GROUP.Names<span style="color: #339933;">,</span>PERISHABLE<span style="color: #009900;">&#41;</span> 
+&nbsp;
+  setnames<span style="color: #009900;">&#40;</span>lossFoodGroup<span style="color: #339933;">,</span> 
+           old = <a href="http://inside-r.org/r-doc/base/colnames"><span style="color: #003399; font-weight: bold;">colnames</span></a><span style="color: #009900;">&#40;</span>lossFoodGroup<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+           <a href="http://inside-r.org/r-doc/methods/new"><span style="color: #003399; font-weight: bold;">new</span></a> = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;measuredItemFCL&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;measuredItemNameFCL&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;measuredItemFBS&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;"># 188 primary commodities</span>
+  distinct<span style="color: #009900;">&#40;</span>lossFoodGroup<span style="color: #339933;">,</span>measuredItemFCL<span style="color: #009900;">&#41;</span>  
+&nbsp;
+  lossFoodGroup = 
+  lossFoodGroup<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #339933;">,</span> foodGroupName<span style="color: #339933;">,</span> foodPerishableGroup<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Adding headings to FCL codes</span>
+  lossFoodGroup<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= addHeadingsFCL<span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert item FCL to numeric</span>
+  lossFoodGroup<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span> 
+&nbsp;
+  lossFoodGroup
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+getProductionData = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+  allCountries =
+    GetCodeList<span style="color: #009900;">&#40;</span>domain = <span style="color: #0000ff;">&quot;agriculture&quot;</span><span style="color: #339933;">,</span>
+                dataset = <span style="color: #0000ff;">&quot;aproduction&quot;</span><span style="color: #339933;">,</span>
+                dimension = <span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span>type <span style="">==</span> <span style="color: #0000ff;">&quot;country&quot;</span><span style="color: #339933;">,</span> code<span style="color: #009900;">&#93;</span>
+&nbsp;
+&nbsp;
+  productionKey = DatasetKey<span style="color: #009900;">&#40;</span>
+    domain = <span style="color: #0000ff;">&quot;agriculture&quot;</span><span style="color: #339933;">,</span>
+    dataset = <span style="color: #0000ff;">&quot;aproduction&quot;</span><span style="color: #339933;">,</span>
+    dimensions = <a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a><span style="color: #009900;">&#40;</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = areaVar<span style="color: #339933;">,</span>
+                keys = allCountries<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = elementVar<span style="color: #339933;">,</span>
+                keys = <span style="color: #0000ff;">&quot;5510&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = itemVar<span style="color: #339933;">,</span>
+                keys = faoswsUtil<span style="">::</span>fcl2cpc<span style="color: #009900;">&#40;</span>addHeadingsFCL<span style="color: #009900;">&#40;</span>requiredItems<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = yearVar<span style="color: #339933;">,</span>
+                keys = selectedYear<span style="color: #009900;">&#41;</span>
+    <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Pivot to vectorize yield computation</span>
+  productionPivot = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = areaVar<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = itemVar<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = yearVar<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">FALSE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = elementVar<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Query the data</span>
+  productionQuery = GetData<span style="color: #009900;">&#40;</span>
+    key = productionKey<span style="color: #339933;">,</span>
+    flags = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #339933;">,</span>
+    normalized = <span style="color: #000000; font-weight: bold;">FALSE</span><span style="color: #339933;">,</span>
+    pivoting = productionPivot
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert geographicAreaM49 to geographicAreaFS</span>
+  productionQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> geographicAreaFS <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>faoswsUtil<span style="">::</span>m492fs<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert measuredItemCPC to measuredItemFCL</span>
+  productionQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= faoswsUtil<span style="">::</span>cpc2fcl<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>measuredItemCPC<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>returnFirst = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert time to numeric</span>
+  productionQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> timePointYears <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>timePointYears<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  productionQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> geographicAreaM49 <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  productionQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span> 
+&nbsp;
+  productionQuery
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">#   productionQuery%&gt;%</span>
+  <span style="color: #666666; font-style: italic;">#     distinct(measuredItemCPC)</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+getImportData = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+  allCountries =
+    GetCodeList<span style="color: #009900;">&#40;</span>domain = <span style="color: #0000ff;">&quot;agriculture&quot;</span><span style="color: #339933;">,</span>
+                dataset = <span style="color: #0000ff;">&quot;aproduction&quot;</span><span style="color: #339933;">,</span>
+                dimension = <span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span>type <span style="">==</span> <span style="color: #0000ff;">&quot;country&quot;</span><span style="color: #339933;">,</span> code<span style="color: #009900;">&#93;</span>  
+&nbsp;
+  <span style="color: #666666; font-style: italic;"># Convert geographicAreaM49 to geographicAreaFS  </span>
+  allCountriesFS = faoswsUtil<span style="">::</span>m492fs<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>allCountries<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #666666; font-style: italic;"># Remove &quot;NULL&quot;s  beacuse they are invalide codes for dimension geographicAreaFS</span>
+  allCountriesFS = <a href="http://inside-r.org/r-doc/stats/na.omit"><span style="color: #003399; font-weight: bold;">na.omit</span></a><span style="color: #009900;">&#40;</span>allCountriesFS<span style="color: #009900;">&#41;</span> 
+  <span style="color: #666666; font-style: italic;"># Remove codes &quot;274&quot; &quot;283&quot; &quot;280&quot; &quot;281&quot; &quot;279&quot;</span>
+  <span style="color: #666666; font-style: italic;"># because They are invalide codes for dimension geographicAreaFS</span>
+  allCountriesFS = allCountriesFS<span style="color: #009900;">&#91;</span><span style="">-</span><a href="http://inside-r.org/r-doc/base/which"><span style="color: #003399; font-weight: bold;">which</span></a><span style="color: #009900;">&#40;</span>allCountriesFS <span style="">==</span> <span style="color: #0000ff;">&quot;274&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  allCountriesFS = allCountriesFS<span style="color: #009900;">&#91;</span><span style="">-</span><a href="http://inside-r.org/r-doc/base/which"><span style="color: #003399; font-weight: bold;">which</span></a><span style="color: #009900;">&#40;</span>allCountriesFS <span style="">==</span> <span style="color: #0000ff;">&quot;283&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  allCountriesFS = allCountriesFS<span style="color: #009900;">&#91;</span><span style="">-</span><a href="http://inside-r.org/r-doc/base/which"><span style="color: #003399; font-weight: bold;">which</span></a><span style="color: #009900;">&#40;</span>allCountriesFS <span style="">==</span> <span style="color: #0000ff;">&quot;280&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  allCountriesFS = allCountriesFS<span style="color: #009900;">&#91;</span><span style="">-</span><a href="http://inside-r.org/r-doc/base/which"><span style="color: #003399; font-weight: bold;">which</span></a><span style="color: #009900;">&#40;</span>allCountriesFS <span style="">==</span> <span style="color: #0000ff;">&quot;281&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  allCountriesFS = allCountriesFS<span style="color: #009900;">&#91;</span><span style="">-</span><a href="http://inside-r.org/r-doc/base/which"><span style="color: #003399; font-weight: bold;">which</span></a><span style="color: #009900;">&#40;</span>allCountriesFS <span style="">==</span> <span style="color: #0000ff;">&quot;279&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+  importKey = DatasetKey<span style="color: #009900;">&#40;</span>
+    domain = <span style="color: #0000ff;">&quot;faostat_one&quot;</span><span style="color: #339933;">,</span>
+    dataset = <span style="color: #0000ff;">&quot;FS1_SUA&quot;</span><span style="color: #339933;">,</span>
+    dimensions = <a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a><span style="color: #009900;">&#40;</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = areaVarFS<span style="color: #339933;">,</span>
+                keys = allCountriesFS<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = elementVarFS<span style="color: #339933;">,</span>
+                keys = <span style="color: #0000ff;">&quot;61&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = itemVarFS<span style="color: #339933;">,</span>
+                keys = <a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>addHeadingsFCL<span style="color: #009900;">&#40;</span>requiredItems<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+      Dimension<span style="color: #009900;">&#40;</span>name = yearVar<span style="color: #339933;">,</span>
+                keys = selectedYear<span style="color: #009900;">&#41;</span>
+    <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Pivot to vectorize yield computation</span>
+  importPivot = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = areaVarFS<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = itemVarFS<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = yearVar<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">FALSE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+    Pivoting<span style="color: #009900;">&#40;</span>code = elementVarFS<span style="color: #339933;">,</span> ascending = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Query the data</span>
+  importQuery = GetData<span style="color: #009900;">&#40;</span>
+    key = importKey<span style="color: #339933;">,</span>
+    flags = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #339933;">,</span>
+    normalized = <span style="color: #000000; font-weight: bold;">FALSE</span><span style="color: #339933;">,</span>
+    pivoting = importPivot
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+  setnames<span style="color: #009900;">&#40;</span>importQuery<span style="color: #339933;">,</span>
+           old = <a href="http://inside-r.org/r-doc/base/names"><span style="color: #003399; font-weight: bold;">names</span></a><span style="color: #009900;">&#40;</span>importQuery<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+           <a href="http://inside-r.org/r-doc/methods/new"><span style="color: #003399; font-weight: bold;">new</span></a> = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaFS&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;measuredItemFCL&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;timePointYears&quot;</span><span style="color: #339933;">,</span>
+                   <span style="color: #0000ff;">&quot;Value_measuredElement_5600&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;flagFaostat_measuredElementFS_5600&quot;</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert geographicAreaM49 to geographicAreaFS</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> geographicAreaM49 <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>faoswsUtil<span style="">::</span>fs2m49<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>geographicAreaFS<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert measuredItemCPC to measuredItemFCL</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= addHeadingsFCL<span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemCPC <span style="">:</span>= faoswsUtil<span style="">::</span>fcl2cpc<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+&nbsp;
+  <span style="color: #666666; font-style: italic;">## Convert time to numeric</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> timePointYears <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>timePointYears<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> geographicAreaFS <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>geographicAreaFS<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  importQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> measuredItemFCL <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span> 
+&nbsp;
+  importQuery
+&nbsp;
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+getSelectedLossData = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+&nbsp;
+          lossQuery = sws_query<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/MASS/area"><span style="color: #003399; font-weight: bold;">area</span></a>=<span style="color: #cc66cc;">1</span><span style="">:</span><span style="color: #cc66cc;">299</span><span style="color: #339933;">,</span> 
+                                item = <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>lossFoodGroup<span style="">$</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+                                ele=<span style="color: #cc66cc;">121</span><span style="color: #339933;">,</span> 
+                                year=<span style="color: #cc66cc;">1991</span><span style="">:</span><span style="color: #cc66cc;">2015</span><span style="color: #339933;">,</span>
+                                value.names = F<span style="color: #009900;">&#41;</span>
+&nbsp;
+          lossQuery = <a href="http://inside-r.org/packages/cran/data.table"><span style="">data.table</span></a><span style="color: #009900;">&#40;</span>lossQuery<span style="color: #009900;">&#41;</span>
+&nbsp;
+          lossQuery = select<span style="color: #009900;">&#40;</span>lossQuery<span style="color: #339933;">,</span> <span style="">-</span>ele<span style="color: #009900;">&#41;</span>
+&nbsp;
+          setnames<span style="color: #009900;">&#40;</span>lossQuery<span style="color: #339933;">,</span>
+                   old = <a href="http://inside-r.org/r-doc/base/names"><span style="color: #003399; font-weight: bold;">names</span></a><span style="color: #009900;">&#40;</span>lossQuery<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+                   <a href="http://inside-r.org/r-doc/methods/new"><span style="color: #003399; font-weight: bold;">new</span></a> = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaFS&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;measuredItemFCL&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;timePointYears&quot;</span><span style="color: #339933;">,</span><span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+                           <span style="color: #0000ff;">&quot;flagFaostat_measuredElementFS_5120&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+          <span style="color: #666666; font-style: italic;">## Convert area FS to area M49</span>
+          lossQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span>geographicAreaM49 <span style="">:</span>= faoswsUtil<span style="">::</span>fs2m49<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>geographicAreaFS<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>    
+&nbsp;
+          <span style="color: #666666; font-style: italic;">## Convert item FCL to area CPC</span>
+          lossQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span>measuredItemCPC <span style="">:</span>= faoswsUtil<span style="">::</span>fcl2cpc<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/as.character"><span style="color: #003399; font-weight: bold;">as.character</span></a><span style="color: #009900;">&#40;</span>addHeadingsFCL<span style="color: #009900;">&#40;</span>measuredItemFCL<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+          <span style="color: #666666; font-style: italic;">## Convert time, area m49 to numeric</span>
+          lossQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> timePointYears <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>timePointYears<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+          lossQuery<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> geographicAreaM49 <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/as.numeric"><span style="color: #003399; font-weight: bold;">as.numeric</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+          lossQuery
+&nbsp;
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;"># getSelectedLossData = function(){</span>
+<span style="color: #666666; font-style: italic;"># </span>
+<span style="color: #666666; font-style: italic;">#   allCountries =</span>
+<span style="color: #666666; font-style: italic;">#     GetCodeList(domain = &quot;agriculture&quot;,</span>
+<span style="color: #666666; font-style: italic;">#                 dataset = &quot;aproduction&quot;,</span>
+<span style="color: #666666; font-style: italic;">#                 dimension = &quot;geographicAreaM49&quot;)[type == &quot;country&quot;, code]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   # Convert geographicAreaM49 to geographicAreaFS  </span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = faoswsUtil::m492fs(as.character(allCountries))</span>
+<span style="color: #666666; font-style: italic;">#   # Remove &quot;NULL&quot;s  beacuse they are invalide codes for dimension geographicAreaFS</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = na.omit(allCountriesFS) </span>
+<span style="color: #666666; font-style: italic;">#   # Remove codes &quot;274&quot; &quot;283&quot; &quot;280&quot; &quot;281&quot; &quot;279&quot;</span>
+<span style="color: #666666; font-style: italic;">#   # because They are invalide codes for dimension geographicAreaFS</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = allCountriesFS[-which(allCountriesFS == &quot;274&quot;)]</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = allCountriesFS[-which(allCountriesFS == &quot;283&quot;)]</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = allCountriesFS[-which(allCountriesFS == &quot;280&quot;)]</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = allCountriesFS[-which(allCountriesFS == &quot;281&quot;)]</span>
+<span style="color: #666666; font-style: italic;">#   allCountriesFS = allCountriesFS[-which(allCountriesFS == &quot;279&quot;)]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   lossKey = DatasetKey(</span>
+<span style="color: #666666; font-style: italic;">#     domain = &quot;faostat_one&quot;,</span>
+<span style="color: #666666; font-style: italic;">#     dataset = &quot;FS1_SUA&quot;,</span>
+<span style="color: #666666; font-style: italic;">#     dimensions = list(</span>
+<span style="color: #666666; font-style: italic;">#       Dimension(name = areaVarFS,</span>
+<span style="color: #666666; font-style: italic;">#                 keys = allCountriesFS),</span>
+<span style="color: #666666; font-style: italic;">#       Dimension(name = elementVarFS,</span>
+<span style="color: #666666; font-style: italic;">#                 keys = &quot;121&quot;),</span>
+<span style="color: #666666; font-style: italic;">#       Dimension(name = itemVarFS,</span>
+<span style="color: #666666; font-style: italic;">#                 keys = as.character(as.numeric(requiredItems$measuredItemFCL))),</span>
+<span style="color: #666666; font-style: italic;">#       Dimension(name = yearVar,</span>
+<span style="color: #666666; font-style: italic;">#                 keys = selectedYear)</span>
+<span style="color: #666666; font-style: italic;">#     )</span>
+<span style="color: #666666; font-style: italic;">#   )</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   ## Pivot to vectorize yield computation</span>
+<span style="color: #666666; font-style: italic;">#   lossPivot = c(</span>
+<span style="color: #666666; font-style: italic;">#     Pivoting(code = areaVarFS, ascending = TRUE),</span>
+<span style="color: #666666; font-style: italic;">#     Pivoting(code = itemVarFS, ascending = TRUE),</span>
+<span style="color: #666666; font-style: italic;">#     Pivoting(code = yearVar, ascending = FALSE),</span>
+<span style="color: #666666; font-style: italic;">#     Pivoting(code = elementVarFS, ascending = TRUE)</span>
+<span style="color: #666666; font-style: italic;">#   )</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   ## Query the data</span>
+<span style="color: #666666; font-style: italic;">#   lossQuery = GetData(</span>
+<span style="color: #666666; font-style: italic;">#     key = lossKey,</span>
+<span style="color: #666666; font-style: italic;">#     flags = TRUE,</span>
+<span style="color: #666666; font-style: italic;">#     normalized = FALSE,</span>
+<span style="color: #666666; font-style: italic;">#     pivoting = lossPivot</span>
+<span style="color: #666666; font-style: italic;">#   )</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   setnames(lossQuery,</span>
+<span style="color: #666666; font-style: italic;">#            old = names(lossQuery),</span>
+<span style="color: #666666; font-style: italic;">#            new = c(&quot;geographicAreaFS&quot;,&quot;measuredItemFCL&quot;,&quot;timePointYears&quot;,</span>
+<span style="color: #666666; font-style: italic;">#                    &quot;Value_measuredElement_5120&quot;,&quot;flagFaostat_measuredElementFS_5120&quot;)</span>
+<span style="color: #666666; font-style: italic;">#   )</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   ## Convert geographicAreaM49 to geographicAreaFS</span>
+<span style="color: #666666; font-style: italic;">#   lossQuery[, geographicAreaM49 := as.numeric(faoswsUtil::fs2m49(as.character(geographicAreaFS)))]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   ## Convert measuredItemCPC to measuredItemFCL</span>
+<span style="color: #666666; font-style: italic;">#   lossQuery[, measuredItemFCL := addHeadingsFCL(measuredItemFCL)]</span>
+<span style="color: #666666; font-style: italic;">#   lossQuery[, measuredItemCPC := faoswsUtil::fcl2cpc(as.character(measuredItemFCL))]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   ## Convert time to numeric</span>
+<span style="color: #666666; font-style: italic;">#   lossQuery[, timePointYears := as.numeric(timePointYears)]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;">#   lossQuery[, geographicAreaFS := as.numeric(geographicAreaFS)]</span>
+<span style="color: #666666; font-style: italic;">#   </span>
+<span style="color: #666666; font-style: italic;"># </span>
+<span style="color: #666666; font-style: italic;"># }</span>
+&nbsp;
+imputeLoss = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #339933;">,</span> lossVar<span style="color: #339933;">,</span> lossObservationFlagVar<span style="color: #339933;">,</span> lossMethodFlagVar<span style="color: #339933;">,</span>
+                      lossModel<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  imputedData = copy<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#41;</span>
+  imputedData<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> predicted <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/exp"><span style="color: #003399; font-weight: bold;">exp</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/stats/predict"><span style="color: #003399; font-weight: bold;">predict</span></a><span style="color: #009900;">&#40;</span>lossModel<span style="color: #339933;">,</span> newdata = imputedData<span style="color: #339933;">,</span>
+                                         allow.new.levels = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  imputedData<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/is.na"><span style="color: #003399; font-weight: bold;">is.na</span></a><span style="color: #009900;">&#40;</span>imputedData<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>lossVar<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span> <span style="">|</span>
+                 imputedData<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>lossObservationFlagVar<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span> <span style="">%in%</span> <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;E&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;I&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;T&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="">&amp;</span>
+                <span style="">!</span><a href="http://inside-r.org/r-doc/base/is.na"><span style="color: #003399; font-weight: bold;">is.na</span></a><span style="color: #009900;">&#40;</span>predicted<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+              <span style="color: #0000ff;">`:=`</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span>lossVar<span style="color: #339933;">,</span> lossObservationFlagVar<span style="color: #339933;">,</span> lossMethodFlagVar
+              <span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+              <a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a><span style="color: #009900;">&#40;</span>predicted<span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;I&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;e&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+<span style="color: #666666; font-style: italic;">#     imputedData[, predicted := NULL]</span>
+<span style="color: #666666; font-style: italic;">#     imputedData</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+mergeAllLossData = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span>lossData<span style="color: #339933;">,</span> ...<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  explanatoryData = <a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a><span style="color: #009900;">&#40;</span>...<span style="color: #009900;">&#41;</span>
+  <a href="http://inside-r.org/r-doc/base/Reduce"><span style="color: #003399; font-weight: bold;">Reduce</span></a><span style="color: #009900;">&#40;</span>f = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span>x<span style="color: #339933;">,</span> y<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+    keys = <a href="http://inside-r.org/r-doc/base/intersect"><span style="color: #003399; font-weight: bold;">intersect</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/colnames"><span style="color: #003399; font-weight: bold;">colnames</span></a><span style="color: #009900;">&#40;</span>x<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> <a href="http://inside-r.org/r-doc/base/colnames"><span style="color: #003399; font-weight: bold;">colnames</span></a><span style="color: #009900;">&#40;</span>y<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+    setkeyv<span style="color: #009900;">&#40;</span>x<span style="color: #339933;">,</span> keys<span style="color: #009900;">&#41;</span>
+    setkeyv<span style="color: #009900;">&#40;</span>y<span style="color: #339933;">,</span> keys<span style="color: #009900;">&#41;</span>
+    <a href="http://inside-r.org/r-doc/base/merge"><span style="color: #003399; font-weight: bold;">merge</span></a><span style="color: #009900;">&#40;</span>x<span style="color: #339933;">,</span> y<span style="color: #339933;">,</span> all.x = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#125;</span><span style="color: #339933;">,</span>
+  x = explanatoryData<span style="color: #339933;">,</span> init = lossData
+  <span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+removeCarryLoss = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #339933;">,</span> lossVar<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> variance <span style="">:</span>= <a href="http://inside-r.org/r-doc/stats/var"><span style="color: #003399; font-weight: bold;">var</span></a><span style="color: #009900;">&#40;</span>.SD<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>lossVar<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span> na.rm = <span style="color: #000000; font-weight: bold;">TRUE</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+       <a href="http://inside-r.org/r-doc/base/by"><span style="color: #003399; font-weight: bold;">by</span></a> = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> duplicateValue <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/duplicated"><span style="color: #003399; font-weight: bold;">duplicated</span></a><span style="color: #009900;">&#40;</span>.SD<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>lossVar<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+       <a href="http://inside-r.org/r-doc/base/by"><span style="color: #003399; font-weight: bold;">by</span></a> = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#91;</span><span style="">!</span><span style="color: #009900;">&#40;</span>variance <span style="">==</span> <span style="color: #cc66cc;">0</span> <span style="">&amp;</span> duplicateValue<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #009900;">&#93;</span>
+  <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">`:=`</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;variance&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">&quot;duplicateValue&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #000000; font-weight: bold;">NULL</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+  <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a>         
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+<span style="color: #000000; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span>updateModel<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  finalModelData = 
+<span style="color: #009900;">&#123;</span>
+  lossFoodGroup <span style="">&lt;&lt;-</span> getLossFoodGroup<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+  requiredItems <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/unique"><span style="color: #003399; font-weight: bold;">unique</span></a><span style="color: #009900;">&#40;</span>lossFoodGroup<span style="">$</span>measuredItemFCL<span style="color: #009900;">&#41;</span>
+  production <span style="">&lt;&lt;-</span> getProductionData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+  import <span style="">&lt;&lt;-</span> getImportData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+  loss <span style="">&lt;&lt;-</span> getSelectedLossData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>%<span style="">&gt;</span>%<a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>flagFaostat_measuredElementFS_5120 <span style="">==</span> <span style="color: #0000ff;">&quot; &quot;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+  <span style="color: #666666; font-style: italic;">#   countryTable &lt;&lt;-</span>
+  <span style="color: #666666; font-style: italic;">#     GetCodeList(domain = &quot;agriculture&quot;,</span>
+  <span style="color: #666666; font-style: italic;">#                 dataset = &quot;agriculture&quot;,</span>
+  <span style="color: #666666; font-style: italic;">#                 dimension = &quot;geographicAreaM49&quot;)[type == &quot;country&quot;,</span>
+  <span style="color: #666666; font-style: italic;">#                                                  list(code, description)]</span>
+  <span style="color: #666666; font-style: italic;">#   setnames(countryTable,</span>
+  <span style="color: #666666; font-style: italic;">#            old = c(&quot;code&quot;, &quot;description&quot;),</span>
+  <span style="color: #666666; font-style: italic;">#            new = c(&quot;geographicAreaM49&quot;, &quot;geographicAreaM49Name&quot;))</span>
+<span style="color: #009900;">&#125;</span> %<span style="">&gt;</span>%
+  mergeAllLossData<span style="color: #009900;">&#40;</span>lossData = loss<span style="color: #339933;">,</span> production<span style="color: #339933;">,</span> import<span style="color: #339933;">,</span> lossFoodGroup<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/base/subset"><span style="color: #003399; font-weight: bold;">subset</span></a><span style="color: #009900;">&#40;</span>x = .<span style="color: #339933;">,</span>
+         <a href="http://inside-r.org/r-doc/base/subset"><span style="color: #003399; font-weight: bold;">subset</span></a> = <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">==</span> <span style="color: #cc66cc;">0</span> <span style="">&amp;</span> Value_measuredElement_5600 <span style="">&gt;</span> <span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span> <span style="">|</span>
+                     <span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">&gt;</span> <span style="color: #cc66cc;">0</span> <span style="">&amp;</span> Value_measuredElement_5600 <span style="">&gt;=</span> <span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+         select = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;timePointYears&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># loss</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5510&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># production</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5600&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># import</span>
+                    <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  removeCarryLoss<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = .<span style="color: #339933;">,</span> lossVar = <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <span style="color: #666666; font-style: italic;">## Convert variables to factor</span>
+  .<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">`:=`</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span>
+             <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+             <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span> 
+             <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+           <a href="http://inside-r.org/r-doc/base/lapply"><span style="color: #003399; font-weight: bold;">lapply</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+                  FUN = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span>x<span style="color: #009900;">&#41;</span> <a href="http://inside-r.org/r-doc/base/as.factor"><span style="color: #003399; font-weight: bold;">as.factor</span></a><span style="color: #009900;">&#40;</span>.SD<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>x<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span>
+           <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#93;</span>
+&nbsp;
+lossLmeModel =
+  lmer<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5120 <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span> <span style="">~</span>
+         <span style="">-</span><span style="color: #cc66cc;">1</span> <span style="">+</span>
+         timePointYears <span style="">+</span>
+         <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span> <span style="">+</span> 
+         <span style="color: #009900;">&#40;</span><span style="">-</span><span style="color: #cc66cc;">1</span> <span style="">+</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span><span style="">|</span>
+            foodPerishableGroup<span style="">/</span>foodGroupName<span style="">/</span>measuredItemCPC<span style="">/</span>geographicAreaM49<span style="color: #009900;">&#41;</span><span style="">+</span>
+         <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5600 <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span> <span style="">+</span>
+         <span style="color: #009900;">&#40;</span><span style="">-</span><span style="color: #cc66cc;">1</span> <span style="">+</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5600 <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span><span style="">|</span>
+            measuredItemCPC<span style="">/</span>geographicAreaM49<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+       <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = finalModelData<span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+<span style="color: #666666; font-style: italic;"># par(mfrow=c(1,1))</span>
+<span style="color: #666666; font-style: italic;"># qqnorm(residuals(lossLmeModel))</span>
+<span style="color: #666666; font-style: italic;"># qqline(residuals(lossLmeModel))</span>
+&nbsp;
+&nbsp;
+&nbsp;
+finalPredictData = 
+<span style="color: #009900;">&#123;</span>
+  <span style="color: #000000; font-weight: bold;">if</span><span style="color: #009900;">&#40;</span><span style="">!</span>updateModel<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+    lossFoodGroup <span style="">&lt;&lt;-</span> getLossFoodGroup<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+    requiredItems <span style="">&lt;-</span> <a href="http://inside-r.org/r-doc/base/unique"><span style="color: #003399; font-weight: bold;">unique</span></a><span style="color: #009900;">&#40;</span>lossFoodGroup<span style="">$</span>measuredItemFCL<span style="color: #009900;">&#41;</span>
+    production <span style="">&lt;&lt;-</span> getProductionData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+    import <span style="">&lt;&lt;-</span> getImportData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+    <span style="color: #666666; font-style: italic;">#    lossRegionClass &lt;&lt;- getLossRegionClass()</span>
+    <span style="color: #666666; font-style: italic;">#     countryTable &lt;&lt;-</span>
+    <span style="color: #666666; font-style: italic;">#       GetCodeList(domain = &quot;agriculture&quot;,</span>
+    <span style="color: #666666; font-style: italic;">#                   dataset = &quot;agriculture&quot;,</span>
+    <span style="color: #666666; font-style: italic;">#                   dimension = &quot;geographicAreaM49&quot;)[type == &quot;country&quot;,</span>
+    <span style="color: #666666; font-style: italic;">#                                                    list(code, description)]</span>
+    <span style="color: #666666; font-style: italic;">#     setnames(countryTable,</span>
+    <span style="color: #666666; font-style: italic;">#              old = c(&quot;code&quot;, &quot;description&quot;),</span>
+    <span style="color: #666666; font-style: italic;">#              new = c(&quot;geographicAreaM49&quot;, &quot;geographicAreaM49Name&quot;))</span>
+  <span style="color: #009900;">&#125;</span>
+  loss <span style="">&lt;&lt;-</span> getSelectedLossData<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span> %<span style="">&gt;</span>%
+  mergeAllLossData<span style="color: #009900;">&#40;</span>lossData = loss<span style="color: #339933;">,</span> production<span style="color: #339933;">,</span> import<span style="color: #339933;">,</span> lossFoodGroup<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/base/subset"><span style="color: #003399; font-weight: bold;">subset</span></a><span style="color: #009900;">&#40;</span>x = .<span style="color: #339933;">,</span>
+         <a href="http://inside-r.org/r-doc/base/subset"><span style="color: #003399; font-weight: bold;">subset</span></a> = <span style="color: #009900;">&#40;</span><span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">==</span> <span style="color: #cc66cc;">0</span> <span style="">&amp;</span> Value_measuredElement_5600 <span style="">&gt;</span> <span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span> <span style="">|</span>
+                     <span style="color: #009900;">&#40;</span>Value_measuredElement_5510 <span style="">&gt;</span> <span style="color: #cc66cc;">0</span> <span style="">&amp;</span> Value_measuredElement_5600 <span style="">&gt;=</span> <span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+         select = <a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;timePointYears&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># loss</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5510&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># production</span>
+                    <span style="color: #0000ff;">&quot;Value_measuredElement_5600&quot;</span><span style="color: #339933;">,</span> <span style="color: #666666; font-style: italic;"># import</span>
+                    <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  removeCarryLoss<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = .<span style="color: #339933;">,</span> lossVar = <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <span style="color: #666666; font-style: italic;">## Convert variables to factor</span>
+  .<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> <span style="color: #0000ff;">`:=`</span><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span>
+             <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+             <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span> 
+             <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+           <a href="http://inside-r.org/r-doc/base/lapply"><span style="color: #003399; font-weight: bold;">lapply</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;geographicAreaM49&quot;</span><span style="color: #339933;">,</span>
+                    <span style="color: #0000ff;">&quot;measuredItemCPC&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;foodGroupName&quot;</span><span style="color: #339933;">,</span> 
+                    <span style="color: #0000ff;">&quot;foodPerishableGroup&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span>
+                  FUN = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span>x<span style="color: #009900;">&#41;</span> <a href="http://inside-r.org/r-doc/base/as.factor"><span style="color: #003399; font-weight: bold;">as.factor</span></a><span style="color: #009900;">&#40;</span>.SD<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#91;</span>x<span style="color: #009900;">&#93;</span><span style="color: #009900;">&#93;</span><span style="color: #009900;">&#41;</span>
+           <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#41;</span>
+  <span style="color: #009900;">&#93;</span>
+&nbsp;
+&nbsp;
+&nbsp;
+<span style="color: #666666; font-style: italic;">## Impute selected data</span>
+finalPredictDataSet =
+finalPredictData %<span style="">&gt;</span>%
+  imputeLoss<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = .<span style="color: #339933;">,</span>
+             lossVar = <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossObservationFlagVar =
+               <span style="color: #0000ff;">&quot;flagObservationStatus_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossMethodFlagVar = <span style="color: #0000ff;">&quot;flagMethod_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossModel = lossLmeModel<span style="color: #009900;">&#41;</span>
+<span style="color: #666666; font-style: italic;">#   %&gt;%</span>
+<span style="color: #666666; font-style: italic;">#   saveImputedLoss(data = .)</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;">##########################################################################################</span>
+<span style="color: #666666; font-style: italic;"># save.image(&quot;lossImputation_ICAS_VII.RData&quot;)</span>
+<a href="http://inside-r.org/r-doc/base/rm"><span style="color: #003399; font-weight: bold;">rm</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/list"><span style="color: #003399; font-weight: bold;">list</span></a>=<a href="http://inside-r.org/r-doc/base/ls"><span style="color: #003399; font-weight: bold;">ls</span></a><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<a href="http://inside-r.org/r-doc/base/setwd"><span style="color: #003399; font-weight: bold;">setwd</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;C:/Users/Golini/Dropbox/FAO/ICAS VII/&quot;</span><span style="color: #009900;">&#41;</span>
+<a href="http://inside-r.org/r-doc/base/load"><span style="color: #003399; font-weight: bold;">load</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;lossImputation_ICAS_VII.RData&quot;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+finalModelDataSet =
+  finalModelData %<span style="">&gt;</span>%
+  imputeLoss<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> = .<span style="color: #339933;">,</span>
+             lossVar = <span style="color: #0000ff;">&quot;Value_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossObservationFlagVar =
+               <span style="color: #0000ff;">&quot;flagObservationStatus_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossMethodFlagVar = <span style="color: #0000ff;">&quot;flagMethod_measuredElement_5120&quot;</span><span style="color: #339933;">,</span>
+             lossModel = lossLmeModel<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalModelDataSet
+&nbsp;
+finalModelDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5600<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5510<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalModelDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5510<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5600<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalModelDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> abs_dif <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/abs"><span style="color: #003399; font-weight: bold;">abs</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5120 <span style="">-</span> <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>predicted<span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+<a href="http://inside-r.org/r-doc/base/summary"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">&#40;</span>finalModelDataSet<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalModelDataSet %<span style="">&gt;</span>%
+  select<span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #339933;">,</span>measuredItemCPC<span style="color: #339933;">,</span>timePointYears<span style="color: #339933;">,</span>Value_measuredElement_5120<span style="color: #339933;">,</span>
+         predicted<span style="color: #339933;">,</span>dif<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>dif <span style="">&gt;</span> <span style="color: #cc66cc;">10000</span> <span style="">|</span> dif <span style="">&lt;</span> <span style="">-</span> <span style="color: #cc66cc;">10000</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;0111&quot;</span><span style="color: #009900;">&#41;</span> 
+&nbsp;
+&nbsp;
+&nbsp;
+finalModelDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> obsRatio <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5120<span style="">/</span>
+                                <span style="color: #009900;">&#40;</span>Value_measuredElement_5510<span style="">+</span>Value_measuredElement_5600<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+finalModelDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> predRatio <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>predicted<span style="">/</span>
+                                        <span style="color: #009900;">&#40;</span>Value_measuredElement_5510<span style="">+</span>Value_measuredElement_5600<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+finalModelDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> abs_delta <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/abs"><span style="color: #003399; font-weight: bold;">abs</span></a><span style="color: #009900;">&#40;</span>obsRatio <span style="">-</span> predRatio<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+shareOfficialData = 
+finalModelDataSet %<span style="">&gt;</span>%
+  select<span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #339933;">,</span>measuredItemCPC<span style="color: #339933;">,</span>timePointYears<span style="color: #339933;">,</span>Value_measuredElement_5120<span style="color: #339933;">,</span>
+         predicted<span style="color: #339933;">,</span>abs_dif<span style="color: #339933;">,</span>abs_delta<span style="color: #009900;">&#41;</span>
+&nbsp;
+<a href="http://inside-r.org/r-doc/base/summary"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">&#40;</span>finalModelDataSet<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalModelDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>abs_delta <span style="">&gt;</span> <span style="color: #cc66cc;">0.01</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+validation = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #339933;">,</span>res<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  numNotWellPred = 
+    <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> %<span style="">&gt;</span>%
+    <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>res <span style="">&gt;</span> <a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #009900;">&#41;</span>
+&nbsp;
+  numWellPred = 
+    <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> %<span style="">&gt;</span>%
+    <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>res <span style="">&lt;=</span> <a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #009900;">&#41;</span>
+&nbsp;
+  shareNotWellPred = <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/dim"><span style="color: #003399; font-weight: bold;">dim</span></a><span style="color: #009900;">&#40;</span>numNotWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="">/</span>dim<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+  shareWellPred = <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/dim"><span style="color: #003399; font-weight: bold;">dim</span></a><span style="color: #009900;">&#40;</span>numWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="">/</span>dim<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+  <a href="http://inside-r.org/r-doc/base/return"><span style="color: #003399; font-weight: bold;">return</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span>shareNotWellPred<span style="color: #339933;">,</span>shareWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+validation<span style="color: #009900;">&#40;</span>shareOfficialData<span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a> = <span style="color: #cc66cc;">0.05</span><span style="color: #339933;">,</span> shareOfficialData %<span style="">&gt;</span>% select<span style="color: #009900;">&#40;</span>abs_delta<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+validation<span style="color: #009900;">&#40;</span>shareOfficialData<span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a> = <span style="color: #cc66cc;">8000</span><span style="color: #339933;">,</span> shareOfficialData %<span style="">&gt;</span>% select<span style="color: #009900;">&#40;</span>abs_dif<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<span style="color: #666666; font-style: italic;">#########################################################################################</span>
+&nbsp;
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5600<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5510<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  select<span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #339933;">,</span> measuredItemCPC<span style="color: #339933;">,</span> timePointYears<span style="color: #339933;">,</span>Value_measuredElement_5120<span style="color: #339933;">,</span>
+         Value_measuredElement_5510<span style="color: #339933;">,</span> Value_measuredElement_5600<span style="color: #339933;">,</span>predicted<span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49 <span style="">==</span> <span style="color: #cc66cc;">124</span> <span style="">&amp;</span> measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;01252&quot;</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5600<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5510<span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5510<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>predicted <span style="">&gt;</span> Value_measuredElement_5600<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalPredictDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> abs_dif <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/abs"><span style="color: #003399; font-weight: bold;">abs</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5120 <span style="">-</span> <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>predicted<span style="color: #339933;">,</span><span style="color: #cc66cc;">0</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+<a href="http://inside-r.org/r-doc/base/summary"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">&#40;</span>finalPredictDataSet<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  select<span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #339933;">,</span>measuredItemCPC<span style="color: #339933;">,</span>timePointYears<span style="color: #339933;">,</span>Value_measuredElement_5120<span style="color: #339933;">,</span>
+         predicted<span style="color: #339933;">,</span>abs_dif<span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>abs_dif <span style="">&gt;</span> <span style="color: #cc66cc;">10000</span> <span style="">|</span> abs_dif <span style="">&lt;</span> <span style="">-</span> <span style="color: #cc66cc;">10000</span><span style="color: #009900;">&#41;</span> %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;0111&quot;</span><span style="color: #009900;">&#41;</span> 
+&nbsp;
+&nbsp;
+finalPredictDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> obsRatio <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>Value_measuredElement_5120<span style="">/</span>
+                                        <span style="color: #009900;">&#40;</span>Value_measuredElement_5510<span style="">+</span>Value_measuredElement_5600<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+finalPredictDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> predRatio <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span>predicted<span style="">/</span>
+                                         <span style="color: #009900;">&#40;</span>Value_measuredElement_5510<span style="">+</span>Value_measuredElement_5600<span style="color: #009900;">&#41;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+finalPredictDataSet<span style="color: #009900;">&#91;</span><span style="color: #339933;">,</span> abs_delta <span style="">:</span>= <a href="http://inside-r.org/r-doc/base/abs"><span style="color: #003399; font-weight: bold;">abs</span></a><span style="color: #009900;">&#40;</span>obsRatio <span style="">-</span> predRatio<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#93;</span>
+&nbsp;
+shareOfficialData = 
+  finalPredictDataSet %<span style="">&gt;</span>%
+  select<span style="color: #009900;">&#40;</span>geographicAreaM49<span style="color: #339933;">,</span>measuredItemCPC<span style="color: #339933;">,</span>timePointYears<span style="color: #339933;">,</span>Value_measuredElement_5120<span style="color: #339933;">,</span>
+         predicted<span style="color: #339933;">,</span>abs_dif<span style="color: #339933;">,</span>abs_delta<span style="color: #009900;">&#41;</span>
+&nbsp;
+<a href="http://inside-r.org/r-doc/base/summary"><span style="color: #003399; font-weight: bold;">summary</span></a><span style="color: #009900;">&#40;</span>finalPredictDataSet<span style="color: #009900;">&#41;</span>
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>abs_delta <span style="">&gt;</span> <span style="color: #cc66cc;">0.01</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+validation = <a href="http://inside-r.org/r-doc/base/function"><span style="color: #003399; font-weight: bold;">function</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #339933;">,</span>res<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#123;</span>
+  numNotWellPred = 
+    <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> %<span style="">&gt;</span>%
+    <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>res <span style="">&gt;</span> <a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #009900;">&#41;</span>
+&nbsp;
+  numWellPred = 
+    <a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a> %<span style="">&gt;</span>%
+    <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>res <span style="">&lt;=</span> <a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a><span style="color: #009900;">&#41;</span>
+&nbsp;
+  shareNotWellPred = <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/dim"><span style="color: #003399; font-weight: bold;">dim</span></a><span style="color: #009900;">&#40;</span>numNotWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="">/</span>dim<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+  shareWellPred = <a href="http://inside-r.org/r-doc/base/round"><span style="color: #003399; font-weight: bold;">round</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/dim"><span style="color: #003399; font-weight: bold;">dim</span></a><span style="color: #009900;">&#40;</span>numWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="">/</span>dim<span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/utils/data"><span style="color: #003399; font-weight: bold;">data</span></a><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #009900;">&#93;</span><span style="color: #339933;">,</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+  <a href="http://inside-r.org/r-doc/base/return"><span style="color: #003399; font-weight: bold;">return</span></a><span style="color: #009900;">&#40;</span><a href="http://inside-r.org/r-doc/base/c"><span style="color: #003399; font-weight: bold;">c</span></a><span style="color: #009900;">&#40;</span>shareNotWellPred<span style="color: #339933;">,</span>shareWellPred<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+<span style="color: #009900;">&#125;</span>
+&nbsp;
+validation<span style="color: #009900;">&#40;</span>shareOfficialData<span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a> = <span style="color: #cc66cc;">0.1</span><span style="color: #339933;">,</span> shareOfficialData %<span style="">&gt;</span>% select<span style="color: #009900;">&#40;</span>abs_delta<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+validation<span style="color: #009900;">&#40;</span>shareOfficialData<span style="color: #339933;">,</span><a href="http://inside-r.org/packages/cran/LIM"><span style="">lim</span></a> = <span style="color: #cc66cc;">10000</span><span style="color: #339933;">,</span> shareOfficialData %<span style="">&gt;</span>% select<span style="color: #009900;">&#40;</span>abs_dif<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;">#########################################################################################</span>
+&nbsp;
+finalModelDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49 <span style="">==</span> <span style="color: #cc66cc;">51</span> <span style="">&amp;</span> measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;0111&quot;</span> <span style="">&amp;</span> timePointYears <span style="">==</span> <span style="color: #cc66cc;">2000</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49 <span style="">==</span> <span style="color: #cc66cc;">51</span> <span style="">&amp;</span> measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;0111&quot;</span> <span style="">&amp;</span> timePointYears <span style="">==</span> <span style="color: #cc66cc;">2000</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+lossLmeModel
+<a href="http://inside-r.org/r-doc/nlme/ranef"><span style="color: #003399; font-weight: bold;">ranef</span></a><span style="color: #009900;">&#40;</span>lossLmeModel<span style="color: #009900;">&#41;</span>
+&nbsp;
+<a href="http://inside-r.org/r-doc/base/exp"><span style="color: #003399; font-weight: bold;">exp</span></a><span style="color: #009900;">&#40;</span><span style="">-</span><span style="color: #cc66cc;">0.0001044</span> <span style="">*</span> <span style="color: #cc66cc;">2000</span>   <span style="">+</span> <span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">0.6930299</span> <span style="">+</span> <span style="color: #cc66cc;">0.0003169136</span> <span style="">+</span> <span style="color: #cc66cc;">0.0374645632</span> <span style="">+</span> <span style="color: #cc66cc;">0.0130039846</span> <span style="">-</span> <span style="color: #cc66cc;">0.03456254</span><span style="color: #009900;">&#41;</span> <span style="">*</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">181561</span> <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span>
+    <span style="">+</span> <span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">0.0445586</span> <span style="">-</span><span style="color: #cc66cc;">0.003484455</span> <span style="">+</span> <span style="color: #cc66cc;">0.01898577</span><span style="color: #009900;">&#41;</span> <span style="">*</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">375221</span> <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;"># # betas for production covariate</span>
+<span style="color: #666666; font-style: italic;"># 51:0111:Cereals (excluding beer):non perishable                             0.0003169136</span>
+<span style="color: #666666; font-style: italic;"># 0111:Cereals (excluding beer):non perishable                            0.0374645632</span>
+<span style="color: #666666; font-style: italic;"># Cereals (excluding beer):non perishable                          0.0130039846</span>
+<span style="color: #666666; font-style: italic;"># non perishable                                    -0.03456254</span>
+<span style="color: #666666; font-style: italic;"># </span>
+<span style="color: #666666; font-style: italic;"># # betas for import covariate</span>
+<span style="color: #666666; font-style: italic;"># 51:0111                            -3.484455e-03</span>
+<span style="color: #666666; font-style: italic;"># 0111                            1.898577e-02</span>
+&nbsp;
+&nbsp;
+finalPredictDataSet %<span style="">&gt;</span>%
+  <a href="http://inside-r.org/r-doc/stats/filter"><span style="color: #003399; font-weight: bold;">filter</span></a><span style="color: #009900;">&#40;</span>geographicAreaM49 <span style="">==</span> <span style="color: #cc66cc;">616</span> <span style="">&amp;</span> measuredItemCPC <span style="">==</span> <span style="color: #0000ff;">&quot;21170.02&quot;</span> <span style="">&amp;</span> timePointYears <span style="">==</span> <span style="color: #cc66cc;">2013</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+<a href="http://inside-r.org/r-doc/base/exp"><span style="color: #003399; font-weight: bold;">exp</span></a><span style="color: #009900;">&#40;</span><span style="">-</span><span style="color: #cc66cc;">0.0001044</span> <span style="">*</span> <span style="color: #cc66cc;">2013</span>   <span style="">+</span> <span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">0.6930299</span> <span style="">+</span> <span style="color: #cc66cc;">0.0297390358</span> <span style="">-</span><span style="color: #cc66cc;">0.01675455</span><span style="color: #009900;">&#41;</span> <span style="">*</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">10503.14</span> <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span>
+    <span style="">+</span> <span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">0.0445586</span><span style="color: #009900;">&#41;</span> <span style="">*</span> <a href="http://inside-r.org/r-doc/base/log"><span style="color: #003399; font-weight: bold;">log</span></a><span style="color: #009900;">&#40;</span><span style="color: #cc66cc;">293</span> <span style="">+</span> <span style="color: #cc66cc;">1</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span>
+&nbsp;
+&nbsp;
+<span style="color: #666666; font-style: italic;"># # betas for production covariate</span>
+<span style="color: #666666; font-style: italic;"># meat:animal products                                            0.0297390358</span>
+<span style="color: #666666; font-style: italic;"># animal products                                   -0.01675455</span></pre></div></div><p><a href="http://www.inside-r.org/pretty-r" title="Created by Pretty R at inside-R.org">Created by Pretty R at inside-R.org</a></p>

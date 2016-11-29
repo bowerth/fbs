@@ -1,0 +1,176 @@
+<p>Counting the number of observations by <code>year</code> and <code>hsrep</code> between 2000 and 2014.</p>
+<ul>
+<li>the SWS source datatable id is <code>ct_tariffline_unlogged_[year]</code></li>
+<li>the result has been obtained using the following query:</li>
+</ul>
+<pre><code>spark.sql(&quot;SELECT year, hsrep, COUNT(*) AS cnt FROM parquetTable GROUP BY year, hsrep ORDER BY year, hsrep&quot;)</code></pre>
+<ul>
+<li><code>count_[hsrep]</code> is the rowcount with the respective hsrep, e.g. <code>count_HS2</code> are the number of observations using commodity classification H2 (HS 2002).</li>
+<li><code>pct_max</code> represents the share of the HS group that has the largest share in the respective year (in percent)</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="right">count_H0</th>
+<th align="right">count_H1</th>
+<th align="right">count_H2</th>
+<th align="right">count_H3</th>
+<th align="right">count_H4</th>
+<th align="right">count_S3</th>
+<th align="left">pct_max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2014</td>
+<td align="right">NA</td>
+<td align="right">198</td>
+<td align="right">54787</td>
+<td align="right">148579</td>
+<td align="right">17296436</td>
+<td align="right">NA</td>
+<td align="left">H4: 98.8</td>
+</tr>
+<tr class="even">
+<td align="right">2013</td>
+<td align="right">NA</td>
+<td align="right">18</td>
+<td align="right">508939</td>
+<td align="right">502068</td>
+<td align="right">16043975</td>
+<td align="right">NA</td>
+<td align="left">H4: 94.1</td>
+</tr>
+<tr class="odd">
+<td align="right">2012</td>
+<td align="right">NA</td>
+<td align="right">51446</td>
+<td align="right">1750726</td>
+<td align="right">8514410</td>
+<td align="right">7258418</td>
+<td align="right">NA</td>
+<td align="left">H3: 48.4</td>
+</tr>
+<tr class="even">
+<td align="right">2011</td>
+<td align="right">3745</td>
+<td align="right">50440</td>
+<td align="right">3172691</td>
+<td align="right">14538124</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H3: 81.8</td>
+</tr>
+<tr class="odd">
+<td align="right">2010</td>
+<td align="right">3591</td>
+<td align="right">79675</td>
+<td align="right">3314265</td>
+<td align="right">14372469</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H3: 80.9</td>
+</tr>
+<tr class="even">
+<td align="right">2009</td>
+<td align="right">5</td>
+<td align="right">10017</td>
+<td align="right">3283</td>
+<td align="right">17776694</td>
+<td align="right">NA</td>
+<td align="right">1</td>
+<td align="left">H3: 99.9</td>
+</tr>
+<tr class="odd">
+<td align="right">2008</td>
+<td align="right">29318</td>
+<td align="right">281544</td>
+<td align="right">2298875</td>
+<td align="right">14785263</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H3: 85</td>
+</tr>
+<tr class="even">
+<td align="right">2007</td>
+<td align="right">127891</td>
+<td align="right">396287</td>
+<td align="right">4177847</td>
+<td align="right">12797975</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H3: 73.1</td>
+</tr>
+<tr class="odd">
+<td align="right">2006</td>
+<td align="right">97833</td>
+<td align="right">591735</td>
+<td align="right">17110432</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H2: 96.1</td>
+</tr>
+<tr class="even">
+<td align="right">2005</td>
+<td align="right">96584</td>
+<td align="right">720565</td>
+<td align="right">17052850</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">1</td>
+<td align="left">H2: 95.4</td>
+</tr>
+<tr class="odd">
+<td align="right">2004</td>
+<td align="right">187334</td>
+<td align="right">816709</td>
+<td align="right">14537045</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">12642</td>
+<td align="left">H2: 93.5</td>
+</tr>
+<tr class="even">
+<td align="right">2003</td>
+<td align="right">176226</td>
+<td align="right">956636</td>
+<td align="right">13779311</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">38491</td>
+<td align="left">H2: 92.2</td>
+</tr>
+<tr class="odd">
+<td align="right">2002</td>
+<td align="right">157536</td>
+<td align="right">1402216</td>
+<td align="right">12165198</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">23240</td>
+<td align="left">H2: 88.5</td>
+</tr>
+<tr class="even">
+<td align="right">2001</td>
+<td align="right">241385</td>
+<td align="right">12418541</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">24345</td>
+<td align="left">H1: 97.9</td>
+</tr>
+<tr class="odd">
+<td align="right">2000</td>
+<td align="right">498923</td>
+<td align="right">16796077</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">H1: 97.1</td>
+</tr>
+</tbody>
+</table>

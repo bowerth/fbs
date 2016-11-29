@@ -1,0 +1,42 @@
+# For Atom Feed
+domain: http://hqlprsws1.hq.un.fao.org
+author: Bo Werth
+email: bo.werth@fao.org
+title: SWS Methodology
+
+# standard jekyll configuration
+permalink: /articles/:title
+
+# highlighter: pygments
+highlighter: false
+exclude:
+  - bin
+  - config.rb
+  - Gemfile
+  - Gemfile.lock
+  - gems
+  - Procfile
+  - Rakefile
+  - README.md
+  - script
+  - vendor
+  - rmarkdown
+  - extras
+  - run-jekyll.bat
+  - export-fbsmodules.bat
+  - import-dryworkflow.bat
+
+include:
+  - _stylesheets
+  - _javascript
+
+markdown: rdiscount
+
+sass:
+  sass_dir: assets/vendor/
+  style: :compressed
+
+# Custom site configuration
+lang: en
+
+baseurl: /fbsmodules

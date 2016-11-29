@@ -1,0 +1,27 @@
+<ul>
+<li>currently, only the data for 2011 is considered</li>
+<li>the result can be inspected with the summary function</li>
+<li>the result can be visualized using the barplot function</li>
+</ul>
+<div id="summary-eu-trade-since-1988-by-cn8-from-eurostat-comext-only-2011" class="section level4">
+<h4>Summary EU trade since 1988 by CN8 from Eurostat Comext (only 2011)</h4>
+<pre class="r"><code>complete_tf_cpc_esdata_tldata_sum$cf_esdata %&gt;%
+  summary</code></pre>
+<pre><code>##     rule   items  passes   fails nNA error warning  expression
+## 1 weight 8077901 6224972 1852929   0 FALSE   FALSE  weight &gt; 0
+## 2    qty 8077901 2384306 5693595   0 FALSE   FALSE !is.na(qty)</code></pre>
+<pre class="r"><code>complete_tf_cpc_esdata_tldata_sum$cf_esdata %&gt;%
+  barplot(main = &quot;EU trade since 1988 by CN8 from Eurostat Comext (only 2011)&quot;)</code></pre>
+<p><img src="C:/SWS-Data/faoswsTrade/figures/summary-complete-tf-cpc-esdata-tldata-2011-validate-barplot-esdata-1.png" title="" alt="" width="800px" /></p>
+</div>
+<div id="summary-tariffline-data-from-unsd-comtrade-only-2011" class="section level4">
+<h4>Summary Tariffline Data from UNSD Comtrade (only 2011)</h4>
+<pre class="r"><code>complete_tf_cpc_esdata_tldata_sum$cf_tldata %&gt;%
+  summary</code></pre>
+<pre><code>##     rule    items  passes  fails     nNA error warning  expression
+## 1 weight 10850866 9769026      0 1081840 FALSE   FALSE  weight &gt; 0
+## 2    qty 10850866 9862034 988832       0 FALSE   FALSE !is.na(qty)</code></pre>
+<pre class="r"><code>complete_tf_cpc_esdata_tldata_sum$cf_tldata %&gt;%
+  barplot(main = &quot;Tariffline Data from UNSD Comtrade (only 2011)&quot;)</code></pre>
+<p><img src="C:/SWS-Data/faoswsTrade/figures/summary-complete-tf-cpc-esdata-tldata-2011-validate-barplot-tldata-1.png" title="" alt="" width="800px" /></p>
+</div>

@@ -1,0 +1,53 @@
+graph TB
+
+subgraph Production Data
+prod["Raw Agricultural Production"]
+end
+
+subgraph Inputs
+prod["Raw Agricultural Production"]
+animal_meat_mapping["Animal Meat Mapping Table (csv file on shared drive)"]
+flag_table["Flag Table (Data in faoswsFlag package)"]
+yield_formula["Yield Formula (Datatable)"]
+complete_imputation_key["Imputation list (hard coded in function getMainKey)"]
+ratio
+share
+end
+
+subgraph Modules
+subgraph Impute Slaughtered
+prod --> impute_slaughtered_module["R module"]
+animal_meat_mapping --> impute_slaughtered_module["R module"]
+flag_table --> impute_slaughtered_module["R module"]
+yield_formula --> impute_slaughtered_module["R module"]
+impute_slaughtered_module["R module"] --> imputed_slaughtered_data["Imputed Slaughtered Data"]
+end
+
+subgraph Synchronise Slaughtered
+imputed_slaughtered_data["Imputed Slaughtered Data"] --> synchronise_slaughtered_module["R module"]
+animal_meat_mapping --> synchronise_slaughtered_module["R module"]
+flag_table  --> synchronise_slaughtered_module["R module"]
+ratio--> synchronise_slaughtered_module["R module"]
+share--> synchronise_slaughtered_module["R module"]
+synchronise_slaughtered_module--> synchronised_slaughtered_data["Synchronised Slaughtered Data"]
+end
+
+subgraph Balance Production Identity
+synchronised_slaughtered_data["Synchronised Slaughtered Data"] --> balance_production_identity_module["R module"]
+yield_formula --> balance_production_identity_module["R module"]
+balance_production_identity_module["R module"] --> balanced_data["Balanced Data"]
+end
+
+subgraph Build Imputed Dataset
+balanced_data["Balanced Data"] --> build_imputed_dataset_module["R module"]
+animal_meat_mapping --> build_imputed_dataset_module["R module"]
+complete_imputation_key --> build_imputed_dataset_module["R module"]
+yield_formula --> build_imputed_dataset_module["R module"]
+build_imputed_dataset_module--> imputed_objects["Imputed Objects (On SWS Shared Drive)"]
+end
+
+subgraph Fill Imputation
+imputed_objects["Imputed Objects (On SWS Shared Drive)"] --> fill_imputation_module["R module"]
+fill_imputation_module --> imputed_datasets["Fully Imputed Dataset"]
+end
+end

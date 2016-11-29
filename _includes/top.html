@@ -1,0 +1,69 @@
+<header class="colorful">
+
+<!-- <div class="navbar navbar-default navbar-fixed-top" role="navigation"> -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-sm-2">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      <div id="logo"><a href="{{ site.url }}{{ site.baseurl }}/" data-escp="">SWS Methodology</a></div>
+    </div>
+
+    <div class="col-md-9 col-sm-10">
+      <div class="collapse navbar-collapse navbar-right" id="main-navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{{ site.url }}{{ site.baseurl }}/">Home</a></li>
+          <li><a href="{{ site.baseurl }}/modules/">Modules</a></li>
+          <li><a href="{{ site.baseurl }}/data/">Data</a></li>
+          <li><a href="{{ site.baseurl }}/screening/">Screening</a></li>
+          <!-- <li><a href="{{ site.baseurl }}/it/">IT Infrastructure</a></li> -->
+          <li><a href="{{ site.baseurl }}/performance/">Performance</a></li>
+          <li><a href="{{ site.baseurl }}/validation/">Validation</a></li>
+          <li><a href="{{ site.baseurl }}/comparison/">Comparison</a></li>
+          <li><a href="{{ site.baseurl }}/faq/">FAQ</a></li>
+          <!-- <li><a href="{{ site.baseurl }}/about/">About</a></li> -->
+          <!-- <li><a>Organization</a></li> -->
+          <!-- <li><a href="{{ site.url }}/disclaimer.html">Disclaimer</a></li> -->
+        </ul>
+      </div>
+    </div>
+  </div>
+<!-- </div> -->
+
+    {% if page.title %}
+      <h2>{{ page.title }}</h2>
+      {% if page.byline %}<p>{{ page.byline }}</p>{% endif %}
+    {% endif %}
+
+
+    {% if page.body_class == "home" %}
+      <div class="jumbotron colorful classes">
+        <div class="text-center">
+
+          <div class="col-md-12">
+	    
+	      <!-- <img width="100" src="{{ '/assets/img/OECD_logo_new_globe.svg' | prepend: site.baseurl }}"> -->
+
+                <div>
+                    <h2 style="margin-top: 10px;">SWS Methodology</h2>
+                    <h4><a href="http://hqlprsws1.hq.un.fao.org/fbsmodules/">http://hqlprsws1.hq.un.fao.org/fbsmodules/</a></h4>
+                    <!-- <h4>Algorithm Library and<br/>Frameworks for Analytic Visualisation</h4> -->
+                </div>
+                <!-- <div> -->
+                    <!-- <a class="btn btn-theme" href="http://fast-waters-66121.herokuapp.com/">Shared Algorithm Example:<br>SDMX Scala Play</a> -->
+                    <!-- <a class="btn btn-theme" href="https://plot.ly/javascript/">Analytic Visualisation Example:<br>plotly.js charting library</a> -->
+                <!-- </div> -->
+	      
+            </div>
+
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+</div>
+</header>
