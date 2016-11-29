@@ -39,4 +39,5 @@ sass:
 # Custom site configuration
 lang: en
 
-baseurl: /fbsmodules
+# baseurl: /fbsmodules
+baseurl: 
