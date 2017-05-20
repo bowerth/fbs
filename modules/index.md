@@ -185,9 +185,9 @@ I.e. there are only 127 out of the 1726 observations where no year is specified.
 
 #### Imputation and Aggregation
 
-[SWS-Methodology/faoswsTrade/vignettes/Documentation/assets/trade\_1\_bis.png](https://github.com/SWS-Methodology/faoswsTrade/blob/master/vignettes/Documentation/assets/trade_1_bis.png)
+[SWS-Methodology/faoswsTrade/vignettes/Documentation/assets/trade\_2.png](https://github.com/SWS-Methodology/faoswsTrade/blob/master/vignettes/Documentation/assets/trade_2.png)
 
-<img src="https://cdn.rawgit.com/SWS-Methodology/faoswsTrade/master/vignettes/Documentation/assets/trade_1_bis.png" alt="module-trade-github-trade_1_bis" width="500px"> 
+<img src="https://cdn.rawgit.com/SWS-Methodology/faoswsTrade/master/vignettes/Documentation/assets/trade_2.png" alt="module-trade-github-trade_2" width="500px"> 
 
 ## Standardization Module
 
