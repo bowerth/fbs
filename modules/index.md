@@ -179,7 +179,7 @@ I.e. there are only 127 out of the 1726 observations where no year is specified.
 
 #### Raw Data Transformation
 
-[SWS-Methodology/faoswsTrade/vignettes/Documentation/assets/trade\_1.png](https://github.com/SWS-Methodology/faoswsTrade/blob/master/vignettes/Documentation/trade_1.svg)
+[SWS-Methodology/faoswsTrade/vignettes/Documentation/assets/trade\_1.png](https://github.com/SWS-Methodology/faoswsTrade/blob/master/vignettes/Documentation/assets/trade_1.png)
 
 <img src="https://cdn.rawgit.com/SWS-Methodology/faoswsTrade/master/vignettes/Documentation/assets/trade_1.png" alt="module-trade-github-trade_1" width="500px"> 
 
